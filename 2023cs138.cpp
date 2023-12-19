@@ -1,6 +1,7 @@
 #include<iostream>
 #include<windows.h>
 #include<conio.h>
+#include<fstream>
 using namespace std;
 
 
@@ -10,7 +11,6 @@ void gotoxy(int x, int y){
     coordinates.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coordinates);
 }
-
 
 void border(){
     
@@ -293,7 +293,6 @@ void viewAllUsers(string users[], string passwords[], int &user_count){
 
 }
 
-
 void deleteUserByAdmin(string users[], string passwords[], int &user_count){
 
     header();
@@ -303,7 +302,6 @@ void deleteUserByAdmin(string users[], string passwords[], int &user_count){
     cout<<"Enter the username to delete: ";
     cin>>delete_username;
 
-    clearScreen();
 
     int index=-1;
 
@@ -338,9 +336,11 @@ void deleteUserByAdmin(string users[], string passwords[], int &user_count){
         
         gotoxy(50,25);
         cout << "User not found."<<endl;
-        clearScreen();
+        
     
     }
+
+    clearScreen();
 
 }
 
@@ -427,7 +427,7 @@ int userMenu(){
     header();
 
     gotoxy(50,15);
-    cout<<"-Employee-";
+    cout<<"-User-";
     gotoxy(48,17);
     cout<<"1. View Products";
     gotoxy(48,18);
@@ -988,12 +988,10 @@ void deleteProduct(string productnames[], int productqty[], float product_price[
 
 }
 
-#include <limits>
-
 bool validation(int value){
     if(cin.fail()){
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
         return false;
     }   
 
@@ -1007,7 +1005,7 @@ int getIntegerInput() {
 
     while(!(cin >> choice)) {
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
         cout << "Invalid input. Please enter an integer.\n";
     }
 
@@ -1015,7 +1013,85 @@ int getIntegerInput() {
     
 }
 
- 
+string getField(string record, int field){
+    
+    int count=0;
+    string word="";
+
+    for(int i=0; i<record.length(); i++){
+        
+        if(record[i]==','){
+            
+            count+=1;
+
+        }
+
+        else if(count==field){
+            
+            word+=record[i];
+
+        }
+
+    }
+
+    return word;
+
+}
+
+void assignValueLogin(string users[], string passwords[], int &user_count){
+    
+    fstream login;
+    string loginFile="login.txt";
+    login.open(loginFile, ios::in);
+
+    string line="";
+
+    while(!login.eof()){
+        
+        getline(login, line);
+
+        if(!line.empty()){
+        
+            users[user_count]=getField(line, 0);
+            passwords[user_count]=getField(line, 1);
+            user_count+=1;
+        
+        }
+
+    }
+
+    login.close();
+
+}
+
+void assignValueProduct(string product_names[], int product_qty[], float product_price[], int &size){
+    
+    fstream product;
+    string productFile="product.txt";
+    product.open(productFile, ios::in);
+
+    string line="";
+
+    while(!product.eof()){
+        
+        getline(product, line);
+
+        if(!line.empty()){
+        
+            product_names[size]=getField(line, 0);
+            product_qty[size]=stoi(getField(line, 1));
+            product_price[size]=stof(getField(line, 2));
+            size+=1;
+        
+        }
+
+    }
+
+    product.close();
+
+}
+
+
 int main() {
     
     
@@ -1027,19 +1103,42 @@ int main() {
     string password="";
 
     int arraysize=10;
-    string users[arraysize];
-    string passwords[arraysize];
+    string users[arraysize]={};
+    string passwords[arraysize]{};
     int user_count=0;
 
-    string product_names[arraysize]={"Jam", "Honey"};
-    int product_qty[arraysize]={5, 7};
-    float product_price[arraysize]={100, 200};
-    int size=2;
+    string product_names[arraysize]={};
+    int product_qty[arraysize]={};
+    float product_price[arraysize]={};
+    int size=0;
 
-    int orderId[arraysize]={12345};
-    string order_productname[arraysize];
-    int order_productqty[arraysize];
+    int orderId[arraysize]={};
+    string order_productname[arraysize]={};
+    int order_productqty[arraysize]={};
     int order_size=0;
+
+    fstream login;
+    string loginFile="login.txt";
+
+    assignValueLogin(users, passwords, user_count);
+    assignValueProduct(product_names, product_qty, product_price, size);
+    
+    //print the values of users and passwords array
+    system("cls");
+    
+    
+    for(int i=0; i<user_count; i++){
+        cout<<users[i]<<" "<<passwords[i]<<endl;
+    }
+
+    for(int i=0; i<size; i++){
+        cout<<product_names[i]<<" "<<product_qty[i]<<" "<<product_price[i]<<endl;
+    }
+
+    
+    login.open(loginFile, ios::in);
+
+    clearScreen();  
     
     system("cls");
     int choice;
